@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nursing CBT</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#132238}
+.app{max-width:760px;margin:auto;min-height:100vh;padding:20px}
+.card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 30px #00000012}
+header{background:#073b66;color:#fff;border-radius:18px;padding:24px;margin-bottom:18px}
+h1,h2{margin-top:0}.muted{color:#64748b}.btn{border:0;border-radius:10px;padding:13px 18px;font-weight:700;cursor:pointer}.primary{background:#087ea4;color:#fff}.secondary{background:#e8eef5;color:#17324d}.hidden{display:none}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.timer{font-weight:800;color:#c0392b}
+.progress{height:8px;background:#e6edf4;border-radius:20px;margin:16px 0}.bar{height:100%;width:0;background:#087ea4;border-radius:20px}
+.option{display:block;width:100%;text-align:left;padding:14px;margin:10px 0;border:2px solid #e1e8ef;border-radius:12px;background:#fff;cursor:pointer}.option.selected{border-color:#087ea4;background:#eefaff}
+.nav{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
+.score{font-size:48px;font-weight:800;color:#087ea4}.review{margin-top:18px}.review-item{padding:14px;border-left:4px solid #087ea4;background:#f6fafc;margin:10px 0;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>🩺 Nursing CBT</h1><div>Pre-Professional Nursing Examination Practice</div></header>
+
+<section id="start" class="card">
+<h2>Practice Test</h2>
+<p class="muted">Test yourself with nursing-style CBT questions. You have 20 minutes for this demo.</p>
+<ul><li>5 questions</li><li>One best answer</li><li>Automatic scoring</li><li>Review answers after submission</li></ul>
+<button class="btn primary" onclick="startTest()">Start Test</button>
+</section>
+
+<section id="quiz" class="card hidden">
+<div class="top"><strong id="counter"></strong><span class="timer" id="timer">20:00</span></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h2 id="question"></h2>
+<div id="options"></div>
+<div class="nav"><button class="btn secondary" onclick="prev()">Previous</button><button class="btn primary" onclick="next()">Next</button></div>
+</section>
+
+<section id="result" class="card hidden">
+<h2>Test Complete</h2>
+<div class="score" id="score"></div>
+<p id="feedback"></p>
+<div class="review" id="review"></div>
+<button class="btn primary" onclick="location.reload()">Take Test Again</button>
+</section>
+</div>
+
+<script>
+const questions=[
+{q:"A nurse is assessing a client with hypovolemic shock. Which finding requires the most immediate attention?",o:["Cool clammy skin","Urine output of 10 mL/hr","Heart rate of 110/min","Thirst"],a:1,e:"Very low urine output indicates inadequate renal perfusion and severe circulatory compromise."},
+{q:"Which assessment finding is most consistent with hypokalemia?",o:["Peaked T waves","Muscle weakness","Hyperactive reflexes with tetany","Bradycardia with widened QRS"],a:1,e:"Hypokalemia commonly causes muscle weakness and characteristic ECG changes such as flattened T waves."},
+{q:"A client receiving IV potassium chloride reports burning at the IV site. What should the nurse do first?",o:["Increase the infusion rate","Stop the infusion and assess the IV site","Add more potassium to the solution","Apply a warm compress and continue"],a:1,e:"Potassium is irritating to veins. Stop the infusion and assess for infiltration or phlebitis."},
+{q:"Which intervention is the priority for a client experiencing an acute asthma attack?",o:["Encourage oral fluids","Administer the prescribed rapid-acting bronchodilator","Teach pursed-lip breathing","Obtain a dietary history"],a:1,e:"Airway and breathing take priority. A rapid-acting bronchodilator helps relieve acute bronchospasm."},
+{q:"A postoperative client suddenly develops dyspnea, chest pain and oxygen saturation of 84%. What is the priority nursing action?",o:["Encourage ambulation","Apply oxygen and activate urgent medical assessment","Give oral analgesics","Offer food"],a:1,e:"Severe hypoxemia with sudden dyspnea requires immediate oxygen support and urgent assessment for a potentially life-threatening cause."}
+];
+let i=0,answers=Array(questions.length).fill(null),seconds=1200,timer;
+
+function startTest(){document.getElementById("start").classList.add("hidden");document.getElementById("quiz").classList.remove("hidden");render();timer=setInterval(()=>{seconds--;updateTimer();if(seconds<=0){clearInterval(timer);finish()}},1000)}
+function updateTimer(){let m=String(Math.floor(seconds/60)).padStart(2,"0"),s=String(seconds%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s}
+function render(){let x=questions[i];document.getElementById("counter").textContent=`Question ${i+1} of ${questions.length}`;document.getElementById("bar").style.width=((i+1)/questions.length*100)+"%";document.getElementById("question").textContent=x.q;document.getElementById("options").innerHTML=x.o.map((v,n)=>`<button class="option ${answers[i]===n?"selected":""}" onclick="choose(${n})">${String.fromCharCode(65+n)}. ${v}</button>`).join("")}
+function choose(n){answers[i]=n;render()}
+function prev(){if(i>0){i--;render()}}
+function next(){if(i<questions.length-1){i++;render()}else finish()}
+function finish(){clearInterval(timer);document.getElementById("quiz").classList.add("hidden");document.getElementById("result").classList.remove("hidden");let score=answers.reduce((s,v,n)=>s+(v===questions[n].a?1:0),0);document.getElementById("score").textContent=`${score}/${questions.length}`;document.getElementById("feedback").textContent=score===questions.length?"Excellent work!":score>=3?"Good effort. Review the missed questions.":"Keep practicing. Focus on the rationales and core nursing principles.";document.getElementById("review").innerHTML=questions.map((x,n)=>`<div class="review-item"><strong>${n+1}. ${x.q}</strong><br>Correct answer: ${String.fromCharCode(65+x.a)}. ${x.o[x.a]}<br><small>${x.e}</small></div>`).join("")}
+</script>
+</body>
+</html>
